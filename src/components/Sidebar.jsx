@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Box, Tag, ShoppingBag, Users, LogOut, Settings, Truck } from 'lucide-react';
+import { LayoutDashboard, Box, ShoppingBag, Users, Layers, MessageSquare, BarChart3, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Sidebar = () => {
@@ -42,7 +42,6 @@ export const Sidebar = () => {
             <span>Products</span>
           </NavLink>
         </li>
-
         <li>
           <NavLink 
             to="/orders" 
@@ -54,20 +53,47 @@ export const Sidebar = () => {
         </li>
         <li>
           <NavLink 
-            to="/delivery-staff" 
-            className={({ isActive }) => `sidebar-item-link ${isActive ? 'active' : ''}`}
-          >
-            <Truck size={18} />
-            <span>Delivery Staff</span>
-          </NavLink>
-        </li>
-        <li>
-          <NavLink 
             to="/customers" 
             className={({ isActive }) => `sidebar-item-link ${isActive ? 'active' : ''}`}
           >
             <Users size={18} />
             <span>Customers</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink 
+            to="/inventory" 
+            className={({ isActive }) => `sidebar-item-link ${isActive ? 'active' : ''}`}
+          >
+            <Layers size={18} />
+            <span>Inventory</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink 
+            to="/customer-issues" 
+            className={({ isActive }) => `sidebar-item-link ${isActive ? 'active' : ''}`}
+          >
+            <MessageSquare size={18} />
+            <span>Customer Issues</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink 
+            to="/reports" 
+            className={({ isActive }) => `sidebar-item-link ${isActive ? 'active' : ''}`}
+          >
+            <BarChart3 size={18} />
+            <span>Reports</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink 
+            to="/business-settings" 
+            className={({ isActive }) => `sidebar-item-link ${isActive ? 'active' : ''}`}
+          >
+            <Settings size={18} />
+            <span>Business Settings</span>
           </NavLink>
         </li>
       </ul>

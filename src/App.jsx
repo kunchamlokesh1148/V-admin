@@ -7,7 +7,10 @@ import { Products } from './pages/Products';
 import { Orders } from './pages/Orders';
 import { OrderDetails } from './pages/OrderDetails';
 import { Customers } from './pages/Customers';
-import { DeliveryStaff } from './pages/DeliveryStaff';
+import { Inventory } from './pages/Inventory';
+import { CustomerIssues } from './pages/CustomerIssues';
+import { Reports } from './pages/Reports';
+import { BusinessSettings } from './pages/BusinessSettings';
 import { Login } from './pages/Login';
 
 // Protected Route Component for Admin Dashboard access
@@ -52,7 +55,10 @@ function App() {
             <Route path="orders" element={<Orders />} />
             <Route path="orders/:id" element={<OrderDetails />} />
             <Route path="customers" element={<Customers />} />
-            <Route path="delivery-staff" element={<DeliveryStaff />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="customer-issues" element={<CustomerIssues />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="business-settings" element={<BusinessSettings />} />
           </Route>
 
           {/* Catch-all Redirect */}
