@@ -219,7 +219,7 @@ export const Inventory = () => {
                         </div>
                       </td>
                       <td style={{ fontWeight: '600' }}>
-                        {prod.stock} units
+                        {prod.stock} {prod.wholesale_unit === 'Piece' ? 'Piece' : `${prod.wholesale_unit}(s)`}
                       </td>
                       <td>
                         <span className={`status-badge ${statusClass}`}>

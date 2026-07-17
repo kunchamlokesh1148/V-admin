@@ -27,6 +27,7 @@ export const Products = () => {
   const [prodPrice, setProdPrice] = useState('');
   const [prodMrp, setProdMrp] = useState('');
   const [prodWholesaleUnit, setProdWholesaleUnit] = useState('Piece');
+  const [prodUnitPieces, setProdUnitPieces] = useState('1');
   const [prodStock, setProdStock] = useState('');
   const [prodMinAlertLimit, setProdMinAlertLimit] = useState('10');
   const [prodDescription, setProdDescription] = useState('');
@@ -76,6 +77,7 @@ export const Products = () => {
     setProdPrice('');
     setProdMrp('');
     setProdWholesaleUnit('Piece');
+    setProdUnitPieces('1');
     setProdStock('');
     setProdMinAlertLimit('10');
     setProdDescription('');
@@ -85,14 +87,16 @@ export const Products = () => {
   };
 
   const handleOpenEditView = (product) => {
+    const pieces = product.unit_pieces || 1;
     setEditingProduct(product);
     setProdName(product.name || '');
     setProdBrand(product.brand || '');
     setProdCategoryId(product.category_id || '');
-    setProdPurchaseCost(product.purchase_cost ? product.purchase_cost.toString() : '');
-    setProdPrice(product.price ? product.price.toString() : '');
-    setProdMrp(product.mrp ? product.mrp.toString() : '');
+    setProdPurchaseCost(product.purchase_cost ? (product.purchase_cost / pieces).toString() : '');
+    setProdPrice(product.price ? (product.price / pieces).toString() : '');
+    setProdMrp(product.mrp ? (product.mrp / pieces).toString() : '');
     setProdWholesaleUnit(product.wholesale_unit || 'Piece');
+    setProdUnitPieces(pieces.toString());
     setProdStock(product.stock ? product.stock.toString() : '0');
     setProdMinAlertLimit(product.min_alert_limit ? product.min_alert_limit.toString() : '10');
     setProdDescription(product.description || '');
@@ -133,14 +137,17 @@ export const Products = () => {
     e.preventDefault();
     setProdSubmitLoading(true);
 
+    const pieces = prodWholesaleUnit === 'Piece' ? 1 : (parseInt(prodUnitPieces) || 1);
+
     const payload = {
       name: prodName,
       brand: prodBrand || null,
       category_id: prodCategoryId || null,
-      purchase_cost: parseFloat(prodPurchaseCost) || 0,
-      price: parseFloat(prodPrice) || 0,
-      mrp: parseFloat(prodMrp) || 0,
+      purchase_cost: (parseFloat(prodPurchaseCost) || 0) * pieces,
+      price: (parseFloat(prodPrice) || 0) * pieces,
+      mrp: (parseFloat(prodMrp) || 0) * pieces,
       wholesale_unit: prodWholesaleUnit,
+      unit_pieces: pieces,
       stock: parseInt(prodStock) || 0,
       min_alert_limit: parseInt(prodMinAlertLimit) || 10,
       description: prodDescription,
@@ -431,14 +438,14 @@ export const Products = () => {
                           {prod.mrp ? `₹${prod.mrp.toFixed(2)}` : '—'}
                         </td>
                         <td style={{ textTransform: 'capitalize' }}>
-                          {prod.wholesale_unit || 'Piece'}
+                          {prod.wholesale_unit === 'Piece' ? 'Piece' : `${prod.wholesale_unit} of ${prod.unit_pieces || 1}`}
                         </td>
                         <td>
                           <span style={{
                             fontWeight: '600',
                             color: prod.stock > (prod.min_alert_limit || 10) ? 'inherit' : prod.stock > 0 ? 'var(--warning)' : 'var(--error)'
                           }}>
-                            {prod.stock} {prod.wholesale_unit || 'Piece'}(s)
+                            {prod.stock} {prod.wholesale_unit === 'Piece' ? 'Piece' : `${prod.wholesale_unit}(s)`}
                           </span>
                         </td>
                         <td>
@@ -522,51 +529,79 @@ export const Products = () => {
             </div>
 
             {/* Pricing Matrix & Packaging Unit */}
-            <div className="grid grid-4" style={{ gap: '16px' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: prodWholesaleUnit === 'Piece' ? 'repeat(4, 1fr)' : 'repeat(5, 1fr)',
+              gap: '16px'
+            }}>
+              {/* Purchase Cost per Piece */}
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Purchase Cost (₹) *</label>
+                <label className="form-label" style={{ fontSize: '0.7rem' }}>PURCHASE COST (₹) - 1 PIECE *</label>
                 <input
                   type="number"
                   step="0.01"
                   value={prodPurchaseCost}
                   onChange={(e) => setProdPurchaseCost(e.target.value)}
                   className="form-control"
-                  placeholder="Purchase price"
+                  placeholder="e.g. 3"
                   required
                 />
+                {prodWholesaleUnit !== 'Piece' && (
+                  <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#b8860b', marginTop: '6px', display: 'block' }}>
+                    Total {prodWholesaleUnit} Purchase Cost: ₹{((parseFloat(prodPurchaseCost) || 0) * (parseInt(prodUnitPieces) || 1)).toFixed(0)}
+                  </span>
+                )}
               </div>
 
+              {/* Wholesale Price per Piece */}
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Wholesale Price (₹) *</label>
+                <label className="form-label" style={{ fontSize: '0.7rem' }}>WHOLESALE PRICE (₹) - 1 PIECE *</label>
                 <input
                   type="number"
                   step="0.01"
                   value={prodPrice}
                   onChange={(e) => setProdPrice(e.target.value)}
                   className="form-control"
-                  placeholder="Wholesale selling price"
+                  placeholder="e.g. 4"
                   required
                 />
+                {prodWholesaleUnit !== 'Piece' && (
+                  <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#b8860b', marginTop: '6px', display: 'block' }}>
+                    Total {prodWholesaleUnit} Wholesale Price: ₹{((parseFloat(prodPrice) || 0) * (parseInt(prodUnitPieces) || 1)).toFixed(0)}
+                  </span>
+                )}
               </div>
 
+              {/* MRP per Piece */}
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">MRP (₹) *</label>
+                <label className="form-label" style={{ fontSize: '0.7rem' }}>MRP (₹) - 1 PIECE *</label>
                 <input
                   type="number"
                   step="0.01"
                   value={prodMrp}
                   onChange={(e) => setProdMrp(e.target.value)}
                   className="form-control"
-                  placeholder="Maximum retail price"
+                  placeholder="e.g. 5"
                   required
                 />
+                {prodWholesaleUnit !== 'Piece' && (
+                  <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#b8860b', marginTop: '6px', display: 'block' }}>
+                    Total {prodWholesaleUnit} MRP: ₹{((parseFloat(prodMrp) || 0) * (parseInt(prodUnitPieces) || 1)).toFixed(0)}
+                  </span>
+                )}
               </div>
 
+              {/* Wholesale Unit */}
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Wholesale Unit *</label>
+                <label className="form-label" style={{ fontSize: '0.7rem' }}>WHOLESALE UNIT *</label>
                 <select
                   value={prodWholesaleUnit}
-                  onChange={(e) => setProdWholesaleUnit(e.target.value)}
+                  onChange={(e) => {
+                    setProdWholesaleUnit(e.target.value);
+                    if (e.target.value === 'Piece') {
+                      setProdUnitPieces('1');
+                    }
+                  }}
                   className="form-control"
                   required
                 >
@@ -576,6 +611,24 @@ export const Products = () => {
                   <option value="Case">Case</option>
                 </select>
               </div>
+
+              {/* Pack Quantity */}
+              {prodWholesaleUnit !== 'Piece' && (
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.7rem' }}>
+                    {prodWholesaleUnit.toUpperCase()} QUANTITY *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={prodUnitPieces}
+                    onChange={(e) => setProdUnitPieces(e.target.value)}
+                    className="form-control"
+                    placeholder="e.g. 12"
+                    required
+                  />
+                </div>
+              )}
             </div>
 
             {/* Stock, Alert limit, Status */}
