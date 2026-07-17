@@ -150,7 +150,7 @@ export const CustomerIssues = () => {
                             <Mail size={12} /> {issue.profiles?.email || 'No email'}
                           </span>
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--text-secondary)' }}>
-                            <Phone size={12} /> {issue.profiles?.mobile_number || 'No mobile'}
+                            <Phone size={12} /> {issue.profiles?.phone || issue.profiles?.mobile_number || 'No mobile'}
                           </span>
                         </div>
                       </td>
@@ -269,7 +269,7 @@ export const CustomerIssues = () => {
                   <div><strong>Company:</strong> {selectedIssue.profiles?.company_name || 'N/A'}</div>
                   <div><strong>Contact Rep:</strong> {selectedIssue.profiles?.full_name || 'N/A'}</div>
                   <div><strong>Email:</strong> {selectedIssue.profiles?.email || 'N/A'}</div>
-                  <div><strong>Phone:</strong> {selectedIssue.profiles?.mobile_number || 'N/A'}</div>
+                  <div><strong>Phone:</strong> {selectedIssue.profiles?.phone || selectedIssue.profiles?.mobile_number || 'N/A'}</div>
                 </div>
               </div>
             </div>

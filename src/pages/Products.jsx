@@ -200,10 +200,9 @@ export const Products = () => {
 
     try {
       if (subTab === 'categories') {
-        const slug = inputVal.toLowerCase().replace(/\s+/g, '-');
         const { error } = await supabase
           .from('categories')
-          .insert({ name: inputVal.trim(), slug });
+          .insert({ name: inputVal.trim() });
         if (error) throw error;
       } else {
         const { error } = await supabase
@@ -223,10 +222,9 @@ export const Products = () => {
     if (!editVal.trim()) return;
     try {
       if (subTab === 'categories') {
-        const slug = editVal.toLowerCase().replace(/\s+/g, '-');
         const { error } = await supabase
           .from('categories')
-          .update({ name: editVal.trim(), slug })
+          .update({ name: editVal.trim() })
           .eq('id', id);
         if (error) throw error;
       } else {
