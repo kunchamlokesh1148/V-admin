@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { ArrowLeft, Clock, MapPin, DollarSign, Building, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, DollarSign, Building, Phone, Mail, Truck } from 'lucide-react';
 
 export const OrderDetails = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [orderItems, setOrderItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Delivery Staff states
+  const [staffList, setStaffList] = useState([]);
+  const [loadingStaff, setLoadingStaff] = useState(false);
 
   useEffect(() => {
     fetchOrderDetails();
+    fetchStaffList();
   }, [id]);
 
   const fetchOrderDetails = async () => {
@@ -18,7 +23,7 @@ export const OrderDetails = () => {
     try {
       const { data: orderData, error: orderErr } = await supabase
         .from('orders')
-        .select('*, profiles(*)')
+        .select('*, profiles(*), delivery_staff(*)')
         .eq('id', id)
         .single();
 
@@ -39,6 +44,25 @@ export const OrderDetails = () => {
     }
   };
 
+  const fetchStaffList = async () => {
+    setLoadingStaff(true);
+    try {
+      const { data, error } = await supabase
+        .from('delivery_staff')
+        .select('*')
+        .eq('status', 'Active')
+        .order('name', { ascending: true });
+
+      if (!error && data) {
+        setStaffList(data);
+      }
+    } catch (err) {
+      console.error('Error loading active delivery staff:', err);
+    } finally {
+      setLoadingStaff(false);
+    }
+  };
+
   const handleStatusChange = async (newStatus) => {
     try {
       const { error } = await supabase
@@ -50,6 +74,23 @@ export const OrderDetails = () => {
       setOrder(prev => ({ ...prev, status: newStatus }));
     } catch (err) {
       alert('Error saving status update: ' + err.message);
+    }
+  };
+
+  const handleAssignStaff = async (staffId) => {
+    try {
+      const parsedId = staffId ? parseInt(staffId) : null;
+      const { error } = await supabase
+        .from('orders')
+        .update({ delivery_staff_id: parsedId })
+        .eq('id', order.id);
+
+      if (error) throw error;
+      
+      // Reload order details to refresh nested delivery partner info
+      await fetchOrderDetails();
+    } catch (err) {
+      alert('Error assigning delivery partner: ' + err.message);
     }
   };
 
@@ -200,6 +241,53 @@ export const OrderDetails = () => {
             <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
               {order.delivery_address || 'No delivery address recorded.'}
             </div>
+          </div>
+
+          {/* Assign Delivery Partner Card */}
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h4 style={{ fontSize: '1rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Truck size={18} style={{ color: 'var(--primary)' }} /> Delivery Partner
+            </h4>
+            {loadingStaff ? (
+              <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Loading partners...</span>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <select
+                  value={order.delivery_staff_id || ''}
+                  onChange={(e) => handleAssignStaff(e.target.value)}
+                  className="form-control"
+                  style={{ fontSize: '0.875rem', height: '36px' }}
+                >
+                  <option value="">Unassigned</option>
+                  {staffList.map(s => (
+                    <option key={s.id} value={s.id}>{s.name} ({s.phone})</option>
+                  ))}
+                </select>
+                {order.delivery_staff && (
+                  <div style={{
+                    fontSize: '0.85rem',
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'var(--bg-light)',
+                    padding: '12px',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--border-light)',
+                    marginTop: '4px'
+                  }}>
+                    <div style={{ fontWeight: '600', color: 'var(--text-main)', marginBottom: '4px' }}>
+                      {order.delivery_staff.name}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
+                      <Phone size={12} /> {order.delivery_staff.phone}
+                    </div>
+                    {order.delivery_staff.vehicle_number && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                        <Truck size={12} /> {order.delivery_staff.vehicle_number}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Cost Summary */}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Box, Tag, ShoppingBag, Users, LogOut, Settings } from 'lucide-react';
+import { LayoutDashboard, Box, Tag, ShoppingBag, Users, LogOut, Settings, Truck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Sidebar = () => {
@@ -50,6 +50,15 @@ export const Sidebar = () => {
           >
             <ShoppingBag size={18} />
             <span>Orders</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink 
+            to="/delivery-staff" 
+            className={({ isActive }) => `sidebar-item-link ${isActive ? 'active' : ''}`}
+          >
+            <Truck size={18} />
+            <span>Delivery Staff</span>
           </NavLink>
         </li>
         <li>
