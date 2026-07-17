@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { ArrowLeft, Clock, MapPin, DollarSign, Building, Phone, Mail, Truck } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, IndianRupee, Building, Phone, Mail, Truck } from 'lucide-react';
 
 export const OrderDetails = () => {
   const { id } = useParams();
@@ -194,10 +194,10 @@ export const OrderDetails = () => {
                     <td style={{ fontWeight: '600' }}>
                       {item.products?.name || 'Catalog Product'}
                     </td>
-                    <td>${item.price ? item.price.toFixed(2) : '0.00'}</td>
+                    <td>₹{item.price ? item.price.toFixed(2) : '0.00'}</td>
                     <td style={{ textAlign: 'center', fontWeight: '600' }}>{item.quantity}</td>
                     <td style={{ textAlign: 'right', fontWeight: '700' }}>
-                      ${( (item.price || 0) * item.quantity ).toFixed(2)}
+                      ₹{((item.price || 0) * item.quantity).toFixed(2)}
                     </td>
                   </tr>
                 ))}
@@ -293,12 +293,12 @@ export const OrderDetails = () => {
           {/* Cost Summary */}
           <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <h4 style={{ fontSize: '1rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <DollarSign size={18} style={{ color: 'var(--primary)' }} /> Financial Summary
+              <IndianRupee size={18} style={{ color: 'var(--primary)' }} /> Financial Summary
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.875rem' }}>
               <div className="flex-between">
                 <span style={{ color: 'var(--text-secondary)' }}>Subtotal</span>
-                <span style={{ fontWeight: '600' }}>${order.total_amount ? order.total_amount.toFixed(2) : '0.00'}</span>
+                <span style={{ fontWeight: '600' }}>₹{order.total_amount ? order.total_amount.toFixed(2) : '0.00'}</span>
               </div>
               <div className="flex-between">
                 <span style={{ color: 'var(--text-secondary)' }}>Freight Logistics</span>
@@ -307,7 +307,7 @@ export const OrderDetails = () => {
               <hr style={{ border: 'none', borderTop: '1px solid var(--border-light)' }} />
               <div className="flex-between" style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--secondary)' }}>
                 <span>Invoice Total</span>
-                <span>${order.total_amount ? order.total_amount.toFixed(2) : '0.00'}</span>
+                <span>₹{order.total_amount ? order.total_amount.toFixed(2) : '0.00'}</span>
               </div>
             </div>
           </div>

@@ -133,7 +133,7 @@ export const Orders = () => {
                       {new Date(ord.created_at).toLocaleDateString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
                     </td>
                     <td style={{ fontWeight: '700' }}>
-                      ${ord.total_amount ? ord.total_amount.toFixed(2) : '0.00'}
+                      ₹{ord.total_amount ? ord.total_amount.toFixed(2) : '0.00'}
                     </td>
                     <td>
                       <select

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { DollarSign, ShoppingBag, Box, Users, AlertTriangle, ArrowUpRight, ChevronRight } from 'lucide-react';
+import { IndianRupee, ShoppingBag, Box, Users, AlertTriangle, ArrowUpRight, ChevronRight } from 'lucide-react';
 
 export const Dashboard = () => {
   const [metrics, setMetrics] = useState({
@@ -86,11 +86,11 @@ export const Dashboard = () => {
           <div className="metric-details">
             <span className="metric-label">Wholesale Revenue</span>
             <span className="metric-value">
-              {loading ? '...' : `$${metrics.sales.toFixed(2)}`}
+              {loading ? '...' : `₹${metrics.sales.toFixed(2)}`}
             </span>
           </div>
           <div className="metric-icon blue">
-            <DollarSign size={22} />
+            <IndianRupee size={22} />
           </div>
         </div>
 
@@ -205,7 +205,7 @@ export const Dashboard = () => {
                         {ord.status || 'Placed'}
                       </span>
                     </td>
-                    <td style={{ fontWeight: '700' }}>${ord.total_amount ? ord.total_amount.toFixed(2) : '0.00'}</td>
+                    <td style={{ fontWeight: '700' }}>₹{ord.total_amount ? ord.total_amount.toFixed(2) : '0.00'}</td>
                     <td style={{ color: 'var(--text-secondary)' }}>
                       {new Date(ord.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                     </td>

@@ -239,7 +239,7 @@ export const Customers = () => {
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                           <span style={{ fontWeight: '800' }}>
-                            ${ord.total_amount ? ord.total_amount.toFixed(2) : '0.00'}
+                            ₹{ord.total_amount ? ord.total_amount.toFixed(2) : '0.00'}
                           </span>
                           <span className={`status-badge ${
                             ord.status === 'Delivered' ? 'completed' :
