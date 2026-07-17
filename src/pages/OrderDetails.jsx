@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { ArrowLeft, Clock, MapPin, IndianRupee, Building, Phone, Mail, Truck } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, CreditCard, Building, Phone, Mail, Truck } from 'lucide-react';
 
 export const OrderDetails = () => {
   const { id } = useParams();
@@ -293,7 +293,7 @@ export const OrderDetails = () => {
           {/* Cost Summary */}
           <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <h4 style={{ fontSize: '1rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <IndianRupee size={18} style={{ color: 'var(--primary)' }} /> Financial Summary
+              <CreditCard size={18} style={{ color: 'var(--primary)' }} /> Financial Summary
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.875rem' }}>
               <div className="flex-between">

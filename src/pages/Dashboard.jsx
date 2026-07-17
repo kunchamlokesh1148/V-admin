@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { IndianRupee, ShoppingBag, Box, Users, AlertTriangle, ArrowUpRight, ChevronRight } from 'lucide-react';
+import { ShoppingBag, Box, Users, AlertTriangle, ArrowUpRight, ChevronRight } from 'lucide-react';
 
 export const Dashboard = () => {
   const [metrics, setMetrics] = useState({
@@ -90,7 +90,7 @@ export const Dashboard = () => {
             </span>
           </div>
           <div className="metric-icon blue">
-            <IndianRupee size={22} />
+            <ShoppingBag size={22} />
           </div>
         </div>
 
