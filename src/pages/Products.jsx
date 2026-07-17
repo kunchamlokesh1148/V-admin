@@ -315,12 +315,8 @@ export const Products = () => {
       {activeView === 'all' && (
         <>
           {/* Filters Row */}
-          <div className="card" style={{
-            padding: '16px 20px',
-            display: 'grid',
-            gridTemplateColumns: '1fr 200px 200px 150px',
-            gap: '16px',
-            alignItems: 'center'
+          <div className="card products-filter-grid" style={{
+            padding: '16px 20px'
           }}>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <Search size={16} style={{ position: 'absolute', left: '12px', color: 'var(--text-muted)' }} />
@@ -744,11 +740,7 @@ export const Products = () => {
           </form>
 
           {/* Inline Listing Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '16px'
-          }}>
+          <div className="grid grid-2" style={{ gap: '16px' }}>
             {(subTab === 'categories' ? categories : brands).map((item) => (
               <div key={item.id} style={{
                 display: 'flex',

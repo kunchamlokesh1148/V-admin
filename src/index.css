@@ -498,8 +498,30 @@ button, input, select, textarea {
   gap: 12px;
 }
 
+/* Custom Grid System */
+.grid {
+  display: grid;
+  gap: 20px;
+}
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-5 { grid-template-columns: repeat(5, 1fr); }
+.grid-6 { grid-template-columns: repeat(6, 1fr); }
+.products-filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 200px 200px 150px;
+  gap: 16px;
+  align-items: center;
+}
+
 /* Responsive bottom navbar for mobile view */
 @media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4, .grid-5, .grid-6, .products-filter-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
   .admin-container {
     flex-direction: column;
   }
