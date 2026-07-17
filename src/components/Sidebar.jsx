@@ -42,15 +42,7 @@ export const Sidebar = () => {
             <span>Products</span>
           </NavLink>
         </li>
-        <li>
-          <NavLink 
-            to="/categories" 
-            className={({ isActive }) => `sidebar-item-link ${isActive ? 'active' : ''}`}
-          >
-            <Tag size={18} />
-            <span>Categories</span>
-          </NavLink>
-        </li>
+
         <li>
           <NavLink 
             to="/orders" 

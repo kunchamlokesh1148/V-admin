@@ -28,7 +28,7 @@ export const Dashboard = () => {
           .from('products')
           .select('*', { count: 'exact', head: true })
           .lte('stock', 5)
-          .eq('is_active', true);
+          .eq('status', true);
 
         // Fetch orders count & data
         const { data: ordersData, count: ordCount } = await supabase

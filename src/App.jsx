@@ -4,7 +4,6 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { AdminLayout } from './components/AdminLayout';
 import { Dashboard } from './pages/Dashboard';
 import { Products } from './pages/Products';
-import { Categories } from './pages/Categories';
 import { Orders } from './pages/Orders';
 import { OrderDetails } from './pages/OrderDetails';
 import { Customers } from './pages/Customers';
@@ -49,7 +48,6 @@ function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="products" element={<Products />} />
-            <Route path="categories" element={<Categories />} />
             <Route path="orders" element={<Orders />} />
             <Route path="orders/:id" element={<OrderDetails />} />
             <Route path="customers" element={<Customers />} />

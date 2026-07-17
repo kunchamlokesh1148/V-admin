@@ -141,8 +141,7 @@ export const OrderDetails = () => {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Product SKU Name</th>
-                  <th>SKU Code</th>
+                  <th>Product Name</th>
                   <th>Price</th>
                   <th style={{ textAlign: 'center' }}>Quantity</th>
                   <th style={{ textAlign: 'right' }}>Total Cost</th>
@@ -154,7 +153,6 @@ export const OrderDetails = () => {
                     <td style={{ fontWeight: '600' }}>
                       {item.products?.name || 'Catalog Product'}
                     </td>
-                    <td><code>{item.products?.sku || 'N/A'}</code></td>
                     <td>${item.price ? item.price.toFixed(2) : '0.00'}</td>
                     <td style={{ textAlign: 'center', fontWeight: '600' }}>{item.quantity}</td>
                     <td style={{ textAlign: 'right', fontWeight: '700' }}>
@@ -200,7 +198,7 @@ export const OrderDetails = () => {
               <MapPin size={18} style={{ color: 'var(--primary)' }} /> Shipping Destination
             </h4>
             <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-              {order.shipping_address || 'No shipping address recorded.'}
+              {order.delivery_address || 'No delivery address recorded.'}
             </div>
           </div>
 
