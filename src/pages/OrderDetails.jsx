@@ -23,7 +23,7 @@ export const OrderDetails = () => {
     try {
       const { data: orderData, error: orderErr } = await supabase
         .from('orders')
-        .select('*, profiles(*), delivery_staff(*)')
+        .select('*, profiles!left(*), delivery_staff!left(*)')
         .eq('id', id)
         .single();
 

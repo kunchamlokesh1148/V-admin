@@ -18,7 +18,7 @@ export const Orders = () => {
     try {
       let query = supabase
         .from('orders')
-        .select('*, profiles(company_name, full_name)')
+        .select('*, profiles!left(company_name, full_name)')
         .order('created_at', { ascending: false });
 
       if (statusFilter) {

@@ -33,7 +33,7 @@ export const Dashboard = () => {
         // Fetch orders count & data
         const { data: ordersData, count: ordCount } = await supabase
           .from('orders')
-          .select('*, profiles(company_name, full_name)');
+          .select('*, profiles!left(company_name, full_name)', { count: 'exact' });
 
         // Fetch customers count (from profiles)
         const { count: custCount } = await supabase
@@ -44,7 +44,7 @@ export const Dashboard = () => {
         const totalSales = ordersData
           ? ordersData
               .filter(o => o.status?.toLowerCase() !== 'cancelled')
-              .reduce((sum, o) => sum + (o.total_amount || 0), 0)
+              .reduce((sum, o) => sum + Number(o.total_amount || 0), 0)
           : 0;
 
         setMetrics({
