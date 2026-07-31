@@ -194,10 +194,10 @@ export const OrderDetails = () => {
                     <td style={{ fontWeight: '600' }}>
                       {item.products?.name || 'Catalog Product'}
                     </td>
-                    <td>₹{item.price ? item.price.toFixed(2) : '0.00'}</td>
+                    <td>₹{item.price ? Number(item.price).toFixed(2) : '0.00'}</td>
                     <td style={{ textAlign: 'center', fontWeight: '600' }}>{item.quantity}</td>
                     <td style={{ textAlign: 'right', fontWeight: '700' }}>
-                      ₹{((item.price || 0) * item.quantity).toFixed(2)}
+                      ₹{(Number(item.price || 0) * item.quantity).toFixed(2)}
                     </td>
                   </tr>
                 ))}
@@ -298,7 +298,7 @@ export const OrderDetails = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.875rem' }}>
               <div className="flex-between">
                 <span style={{ color: 'var(--text-secondary)' }}>Subtotal</span>
-                <span style={{ fontWeight: '600' }}>₹{order.total_amount ? order.total_amount.toFixed(2) : '0.00'}</span>
+                <span style={{ fontWeight: '600' }}>₹{order.total_amount ? Number(order.total_amount).toFixed(2) : '0.00'}</span>
               </div>
               <div className="flex-between">
                 <span style={{ color: 'var(--text-secondary)' }}>Freight Logistics</span>
@@ -307,7 +307,7 @@ export const OrderDetails = () => {
               <hr style={{ border: 'none', borderTop: '1px solid var(--border-light)' }} />
               <div className="flex-between" style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--secondary)' }}>
                 <span>Invoice Total</span>
-                <span>₹{order.total_amount ? order.total_amount.toFixed(2) : '0.00'}</span>
+                <span>₹{order.total_amount ? Number(order.total_amount).toFixed(2) : '0.00'}</span>
               </div>
             </div>
           </div>

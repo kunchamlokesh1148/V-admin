@@ -189,7 +189,7 @@ export const Dashboard = () => {
               <tbody>
                 {recentOrders.map((ord) => (
                   <tr key={ord.id}>
-                    <td style={{ fontWeight: '600' }}>#{ord.id.slice(0, 8)}...</td>
+                    <td style={{ fontWeight: '600' }}>#{ord.id}</td>
                     <td>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={{ fontWeight: '600' }}>{ord.profiles?.company_name || 'Apex Business Partner'}</span>
@@ -205,7 +205,7 @@ export const Dashboard = () => {
                         {ord.status || 'Placed'}
                       </span>
                     </td>
-                    <td style={{ fontWeight: '700' }}>₹{ord.total_amount ? ord.total_amount.toFixed(2) : '0.00'}</td>
+                    <td style={{ fontWeight: '700' }}>₹{ord.total_amount ? Number(ord.total_amount).toFixed(2) : '0.00'}</td>
                     <td style={{ color: 'var(--text-secondary)' }}>
                       {new Date(ord.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                     </td>

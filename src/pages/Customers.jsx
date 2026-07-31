@@ -230,7 +230,7 @@ export const Customers = () => {
                       }}>
                         <div>
                           <span style={{ fontWeight: '700', display: 'block' }}>
-                            Order #{ord.id.slice(0, 8)}...
+                            Order #{ord.id}
                           </span>
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>
                             Date: {new Date(ord.created_at).toLocaleDateString()}
@@ -239,7 +239,7 @@ export const Customers = () => {
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                           <span style={{ fontWeight: '800' }}>
-                            ₹{ord.total_amount ? ord.total_amount.toFixed(2) : '0.00'}
+                            ₹{ord.total_amount ? Number(ord.total_amount).toFixed(2) : '0.00'}
                           </span>
                           <span className={`status-badge ${
                             ord.status === 'Delivered' ? 'completed' :

@@ -55,9 +55,10 @@ export const Orders = () => {
 
   // Local filter for search box
   const filteredOrders = orders.filter((ord) => {
-    const idMatch = ord.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const companyMatch = ord.profiles?.company_name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const contactMatch = ord.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    const term = searchTerm.toLowerCase();
+    const idMatch = String(ord.id).toLowerCase().includes(term);
+    const companyMatch = ord.profiles?.company_name?.toLowerCase().includes(term);
+    const contactMatch = ord.profiles?.full_name?.toLowerCase().includes(term);
     return idMatch || companyMatch || contactMatch;
   });
 
@@ -122,7 +123,7 @@ export const Orders = () => {
               <tbody>
                 {filteredOrders.map((ord) => (
                   <tr key={ord.id}>
-                    <td style={{ fontWeight: '600' }}>#{ord.id.slice(0, 8)}...</td>
+                    <td style={{ fontWeight: '600' }}>#{ord.id}</td>
                     <td>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={{ fontWeight: '600' }}>{ord.profiles?.company_name || 'Apex Partner'}</span>
@@ -133,7 +134,7 @@ export const Orders = () => {
                       {new Date(ord.created_at).toLocaleDateString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
                     </td>
                     <td style={{ fontWeight: '700' }}>
-                      ₹{ord.total_amount ? ord.total_amount.toFixed(2) : '0.00'}
+                      ₹{ord.total_amount ? Number(ord.total_amount).toFixed(2) : '0.00'}
                     </td>
                     <td>
                       <select

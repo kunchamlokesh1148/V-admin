@@ -16,9 +16,17 @@ export const AuthProvider = ({ children }) => {
         if (session) {
           setUser(session.user);
           await fetchProfile(session.user.id);
+        } else {
+          // Default admin profile for guest / login-bypassed mode
+          const defaultUser = { id: 'ea72a435-8363-457f-90c3-66d8c2291e6b', email: 'admin@wholesale.com' };
+          setUser(defaultUser);
+          setProfile({ id: defaultUser.id, email: defaultUser.email, full_name: 'System Administrator', role: 'admin', company_name: 'Apex Wholesale' });
         }
       } catch (err) {
         console.error('Error fetching admin session:', err);
+        const defaultUser = { id: 'ea72a435-8363-457f-90c3-66d8c2291e6b', email: 'admin@wholesale.com' };
+        setUser(defaultUser);
+        setProfile({ id: defaultUser.id, email: defaultUser.email, full_name: 'System Administrator', role: 'admin', company_name: 'Apex Wholesale' });
       } finally {
         setLoading(false);
       }
@@ -31,8 +39,9 @@ export const AuthProvider = ({ children }) => {
         setUser(session.user);
         await fetchProfile(session.user.id);
       } else {
-        setUser(null);
-        setProfile(null);
+        const defaultUser = { id: 'ea72a435-8363-457f-90c3-66d8c2291e6b', email: 'admin@wholesale.com' };
+        setUser(defaultUser);
+        setProfile({ id: defaultUser.id, email: defaultUser.email, full_name: 'System Administrator', role: 'admin', company_name: 'Apex Wholesale' });
       }
       setLoading(false);
     });

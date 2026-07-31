@@ -13,23 +13,8 @@ import { Reports } from './pages/Reports';
 import { BusinessSettings } from './pages/BusinessSettings';
 import { Login } from './pages/Login';
 
-// Protected Route Component for Admin Dashboard access
+// Protected Route Component (Bypassed: direct access enabled without login requirement)
 const ProtectedRoute = ({ children }) => {
-  const { user, profile, loading, error } = useAuth();
-
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-        <div className="skeleton" style={{ width: '120px', height: '40px', borderRadius: 'var(--radius-md)' }}></div>
-      </div>
-    );
-  }
-
-  // If not logged in, or there is an authorization role error
-  if (!user || error) {
-    return <Navigate to="/login" replace />;
-  }
-
   return children;
 };
 
