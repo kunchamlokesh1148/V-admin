@@ -13,6 +13,23 @@ export const CustomerIssues = () => {
 
   useEffect(() => {
     fetchIssues();
+
+    // Supabase Realtime subscription for customer_issues
+    const channel = supabase
+      .channel('customer-issues-admin-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'customer_issues' },
+        (payload) => {
+          console.log('[Realtime] Customer issue updated/created:', payload);
+          fetchIssues();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchIssues = async () => {
@@ -20,7 +37,7 @@ export const CustomerIssues = () => {
     try {
       const { data, error } = await supabase
         .from('customer_issues')
-        .select('*, profiles(*)')
+        .select('*, profiles!left(*)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
