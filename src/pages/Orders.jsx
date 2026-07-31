@@ -6,6 +6,7 @@ import { Eye, Search, AlertCircle } from 'lucide-react';
 export const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -19,41 +20,84 @@ export const Orders = () => {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'orders' },
         (payload) => {
-          console.log('Real-time notification: orders table changed', payload);
+          console.log('[Realtime] Orders table changed:', payload);
           fetchOrders();
         }
       )
       .subscribe((status) => {
-        console.log('Supabase orders realtime channel status:', status);
+        console.log('[Realtime] Orders channel subscription status:', status);
       });
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [statusFilter]);
+  }, []);
 
   const fetchOrders = async () => {
     setLoading(true);
+    setFetchError(null);
     try {
-      let query = supabase
+      // Requirement 2: SELECT * FROM orders ORDER BY created_at DESC;
+      const { data: rawOrders, error: ordersError, count } = await supabase
         .from('orders')
-        .select('*, profiles!left(id, company_name, full_name, email, phone)')
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false });
 
-      if (statusFilter) {
-        query = query.eq('status', statusFilter);
+      // Requirement 3: Log every Supabase response to browser console
+      console.log('[Admin Orders] Supabase Response:', {
+        data: rawOrders,
+        error: ordersError,
+        rowCount: count ?? rawOrders?.length ?? 0
+      });
+
+      if (ordersError) {
+        console.error('[Admin Orders] Supabase returned error fetching orders:', ordersError);
+        setFetchError(ordersError.message || 'Failed to fetch orders from database.');
+        setOrders([]);
+        return;
       }
 
-      const { data, error } = await query;
-      if (error) {
-        console.error('Error fetching orders from Supabase:', error);
-        throw error;
+      if (!rawOrders || rawOrders.length === 0) {
+        setOrders([]);
+        return;
       }
-      if (data) {
-        setOrders(data);
+
+      // Requirement 4: Separate profile lookup so orders list never breaks if join fails
+      const userIds = [...new Set(rawOrders.map(o => o.user_id).filter(Boolean))];
+      let profilesMap = {};
+
+      if (userIds.length > 0) {
+        try {
+          const { data: profilesData, error: profErr } = await supabase
+            .from('profiles')
+            .select('id, full_name, email, phone, company_name')
+            .in('id', userIds);
+
+          console.log('[Admin Orders] Profiles Lookup Response:', {
+            data: profilesData,
+            error: profErr
+          });
+
+          if (profilesData) {
+            profilesData.forEach(p => {
+              profilesMap[p.id] = p;
+            });
+          }
+        } catch (pErr) {
+          console.error('[Admin Orders] Non-critical error fetching profiles:', pErr);
+        }
       }
+
+      // Requirement 8: Combine orders with profiles (display even if profile missing)
+      const combinedOrders = rawOrders.map(ord => ({
+        ...ord,
+        profiles: profilesMap[ord.user_id] || null
+      }));
+
+      setOrders(combinedOrders);
     } catch (err) {
-      console.error('Error fetching orders:', err);
+      console.error('[Admin Orders] Exception during fetchOrders:', err);
+      setFetchError(err.message || 'An unexpected error occurred while loading orders.');
     } finally {
       setLoading(false);
     }
@@ -67,8 +111,9 @@ export const Orders = () => {
         .eq('id', orderId);
         
       if (error) {
-        console.error(`Error updating order ${orderId} status:`, error);
-        throw error;
+        console.error(`[Admin Orders] Error updating order #${orderId} status:`, error);
+        alert('Failed to update status: ' + error.message);
+        return;
       }
       
       setOrders(prev =>
@@ -79,15 +124,30 @@ export const Orders = () => {
     }
   };
 
-  // Local filter for search box
+  // Requirement 7: Flexible filtering (handles 'pending', 'placed', case-insensitively)
   const filteredOrders = orders.filter((ord) => {
-    const term = searchTerm.toLowerCase();
-    const idMatch = String(ord.id).toLowerCase().includes(term);
-    const companyMatch = ord.profiles?.company_name?.toLowerCase().includes(term);
-    const contactMatch = ord.profiles?.full_name?.toLowerCase().includes(term);
-    const emailMatch = ord.profiles?.email?.toLowerCase().includes(term);
-    const phoneMatch = ord.profiles?.phone?.toLowerCase().includes(term);
-    return idMatch || companyMatch || contactMatch || emailMatch || phoneMatch;
+    if (statusFilter) {
+      const orderStatus = (ord.status || '').toLowerCase();
+      const targetFilter = statusFilter.toLowerCase();
+      if (targetFilter === 'placed' || targetFilter === 'pending') {
+        if (orderStatus !== 'placed' && orderStatus !== 'pending') return false;
+      } else if (orderStatus !== targetFilter) {
+        return false;
+      }
+    }
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      const idMatch = String(ord.id).toLowerCase().includes(term);
+      const companyMatch = ord.profiles?.company_name?.toLowerCase().includes(term);
+      const contactMatch = ord.profiles?.full_name?.toLowerCase().includes(term);
+      const emailMatch = ord.profiles?.email?.toLowerCase().includes(term);
+      const phoneMatch = ord.profiles?.phone?.toLowerCase().includes(term);
+      const addressMatch = ord.delivery_address?.toLowerCase().includes(term);
+      return idMatch || companyMatch || contactMatch || emailMatch || phoneMatch || addressMatch;
+    }
+
+    return true;
   });
 
   return (
@@ -99,7 +159,7 @@ export const Orders = () => {
           <Search size={16} style={{ position: 'absolute', left: '12px', color: 'var(--text-muted)' }} />
           <input
             type="text"
-            placeholder="Search order ID, company name, contact..."
+            placeholder="Search order ID, company name, contact, address..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="form-control"
@@ -116,7 +176,7 @@ export const Orders = () => {
             style={{ width: '180px', height: '40px', padding: '0 10px' }}
           >
             <option value="">All Statuses</option>
-            <option value="Placed">Placed</option>
+            <option value="Placed">Placed / Pending</option>
             <option value="Accepted">Accepted</option>
             <option value="Packed">Packed</option>
             <option value="Out For Delivery">Out For Delivery</option>
@@ -125,6 +185,23 @@ export const Orders = () => {
           </select>
         </div>
       </div>
+
+      {/* Requirement 9: Error Banner on Screen */}
+      {fetchError && (
+        <div style={{
+          padding: '16px 20px',
+          backgroundColor: 'var(--error-light)',
+          color: 'var(--error)',
+          borderRadius: 'var(--radius-md)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          fontWeight: '600'
+        }}>
+          <AlertCircle size={20} />
+          <span>Supabase Error: {fetchError}</span>
+        </div>
+      )}
 
       {/* Orders Table */}
       <section className="table-card">
@@ -173,7 +250,7 @@ export const Orders = () => {
                     </td>
                     <td>
                       <select
-                        value={ord.status || 'Placed'}
+                        value={ord.status || 'pending'}
                         onChange={(e) => handleStatusChange(ord.id, e.target.value)}
                         className="form-control"
                         style={{
@@ -186,15 +263,15 @@ export const Orders = () => {
                           backgroundColor: 
                             ord.status === 'Delivered' ? 'var(--success-light)' :
                             ord.status === 'Cancelled' ? 'var(--error-light)' :
-                            ord.status === 'Placed' ? 'var(--warning-light)' : 'var(--info-light)',
+                            (ord.status === 'Placed' || ord.status === 'pending') ? 'var(--warning-light)' : 'var(--info-light)',
                           color:
                             ord.status === 'Delivered' ? 'var(--success)' :
                             ord.status === 'Cancelled' ? 'var(--error)' :
-                            ord.status === 'Placed' ? 'var(--warning)' : 'var(--info)',
+                            (ord.status === 'Placed' || ord.status === 'pending') ? 'var(--warning)' : 'var(--info)',
                           border: 'none'
                         }}
                       >
-                        <option value="Placed" style={{ backgroundColor: '#fff', color: 'var(--text-main)' }}>Placed</option>
+                        <option value="pending" style={{ backgroundColor: '#fff', color: 'var(--text-main)' }}>Placed / Pending</option>
                         <option value="Accepted" style={{ backgroundColor: '#fff', color: 'var(--text-main)' }}>Accepted</option>
                         <option value="Packed" style={{ backgroundColor: '#fff', color: 'var(--text-main)' }}>Packed</option>
                         <option value="Out For Delivery" style={{ backgroundColor: '#fff', color: 'var(--text-main)' }}>Out For Delivery</option>
