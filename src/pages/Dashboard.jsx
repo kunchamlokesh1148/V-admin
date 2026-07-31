@@ -15,8 +15,28 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDashboardStats = async () => {
-      setLoading(true);
+    fetchDashboardStats();
+
+    // Realtime subscription for orders table
+    const channel = supabase
+      .channel('orders-realtime-dashboard')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders' },
+        () => {
+          console.log('Realtime update: Dashboard refreshing stats and recent orders');
+          fetchDashboardStats();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchDashboardStats = async () => {
+    setLoading(true);
       try {
         // Fetch products count
         const { count: prodCount } = await supabase
@@ -68,9 +88,6 @@ export const Dashboard = () => {
         setLoading(false);
       }
     };
-
-    fetchDashboardStats();
-  }, []);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>

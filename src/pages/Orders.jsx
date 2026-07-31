@@ -11,6 +11,25 @@ export const Orders = () => {
 
   useEffect(() => {
     fetchOrders();
+
+    // Requirement 3: Real-time updates for orders table
+    const channel = supabase
+      .channel('orders-realtime-admin')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders' },
+        (payload) => {
+          console.log('Real-time notification: orders table changed', payload);
+          fetchOrders();
+        }
+      )
+      .subscribe((status) => {
+        console.log('Supabase orders realtime channel status:', status);
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [statusFilter]);
 
   const fetchOrders = async () => {
@@ -18,7 +37,7 @@ export const Orders = () => {
     try {
       let query = supabase
         .from('orders')
-        .select('*, profiles!left(company_name, full_name)')
+        .select('*, profiles!left(id, company_name, full_name, email, phone)')
         .order('created_at', { ascending: false });
 
       if (statusFilter) {
@@ -26,7 +45,11 @@ export const Orders = () => {
       }
 
       const { data, error } = await query;
-      if (!error && data) {
+      if (error) {
+        console.error('Error fetching orders from Supabase:', error);
+        throw error;
+      }
+      if (data) {
         setOrders(data);
       }
     } catch (err) {
@@ -43,7 +66,10 @@ export const Orders = () => {
         .update({ status: newStatus })
         .eq('id', orderId);
         
-      if (error) throw error;
+      if (error) {
+        console.error(`Error updating order ${orderId} status:`, error);
+        throw error;
+      }
       
       setOrders(prev =>
         prev.map(ord => (ord.id === orderId ? { ...ord, status: newStatus } : ord))
@@ -59,7 +85,9 @@ export const Orders = () => {
     const idMatch = String(ord.id).toLowerCase().includes(term);
     const companyMatch = ord.profiles?.company_name?.toLowerCase().includes(term);
     const contactMatch = ord.profiles?.full_name?.toLowerCase().includes(term);
-    return idMatch || companyMatch || contactMatch;
+    const emailMatch = ord.profiles?.email?.toLowerCase().includes(term);
+    const phoneMatch = ord.profiles?.phone?.toLowerCase().includes(term);
+    return idMatch || companyMatch || contactMatch || emailMatch || phoneMatch;
   });
 
   return (
@@ -112,11 +140,12 @@ export const Orders = () => {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Order Reference</th>
-                  <th>Company Client</th>
+                  <th>Order ID</th>
+                  <th>Customer Details</th>
+                  <th>Contact Email & Phone</th>
                   <th>Order Date</th>
-                  <th>Revenue Total</th>
-                  <th>Shipment Status</th>
+                  <th>Total Amount</th>
+                  <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -126,8 +155,14 @@ export const Orders = () => {
                     <td style={{ fontWeight: '600' }}>#{ord.id}</td>
                     <td>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontWeight: '600' }}>{ord.profiles?.company_name || 'Apex Partner'}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{ord.profiles?.full_name || 'Customer'}</span>
+                        <span style={{ fontWeight: '700' }}>{ord.profiles?.full_name || 'Wholesale Buyer'}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{ord.profiles?.company_name || 'Individual Business'}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', flexDirection: 'column', fontSize: '0.8rem' }}>
+                        <span>{ord.profiles?.email || 'N/A'}</span>
+                        <span style={{ color: 'var(--text-muted)' }}>{ord.profiles?.phone || 'N/A'}</span>
                       </div>
                     </td>
                     <td style={{ color: 'var(--text-secondary)' }}>
